@@ -1,6 +1,6 @@
-// src/pages/LoginPage.jsx
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+// useNavigate tidak lagi diperlukan di sini karena kita akan me-reload halaman
+import authService from "../api/authService"; // <-- 1. IMPORT SERVICE OTENTIKASI
 import "../styles/LoginPage.css";
 
 function LoginPage() {
@@ -11,7 +11,6 @@ function LoginPage() {
   });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
-  const navigate = useNavigate();
 
   const handleInputChange = (e) => {
     const { name, value, type, checked } = e.target;
@@ -27,33 +26,15 @@ function LoginPage() {
     setError("");
 
     try {
-      // Simulate API call - replace with actual authentication
-      await new Promise((resolve) => setTimeout(resolve, 1000));
+      // 2. MENGGANTI LOGIKA MOCK DENGAN PANGGILAN API NYATA
+      await authService.login(formData.username, formData.password);
 
-      // Mock authentication - replace with real API call
-      if (formData.username === "admin" && formData.password === "admin123") {
-        const mockUser = {
-          id: 1,
-          username: "admin",
-          email: "admin@company.com",
-          role: "Administrator",
-          permissions: ["read", "write", "delete", "admin"],
-        };
-
-        const mockToken = "mock-jwt-token-" + Date.now();
-
-        // Store in localStorage
-        localStorage.setItem("admin_token", mockToken);
-        localStorage.setItem("admin_user", JSON.stringify(mockUser));
-
-        // Redirect to dashboard
-        navigate("/dashboard");
-      } else {
-        setError("Username atau password salah");
-      }
-    } catch (error) {
-      console.error("Login error:", error);
-      setError("Terjadi kesalahan saat login. Silakan coba lagi.");
+      // 3. RELOAD HALAMAN SETELAH LOGIN BERHASIL
+      // Ini akan membuat App.jsx membaca token baru dan mengarahkan ke dashboard
+      window.location.reload();
+    } catch (err) {
+      // 4. MENANGKAP DAN MENAMPILKAN ERROR DARI BACKEND
+      setError(err.message || "Terjadi kesalahan. Silakan coba lagi.");
     } finally {
       setLoading(false);
     }
@@ -61,8 +42,6 @@ function LoginPage() {
 
   const demoCredentials = [
     { username: "admin", password: "admin123", role: "Administrator" },
-    { username: "manager", password: "manager123", role: "Manager" },
-    { username: "staff", password: "staff123", role: "Staff" },
   ];
 
   const fillDemoCredentials = (credentials) => {
@@ -102,42 +81,6 @@ function LoginPage() {
               Platform manajemen Corporate Social Responsibility yang
               komprehensif untuk mengelola proposal dan program CSR perusahaan.
             </p>
-
-            <div className="features-list">
-              <div className="feature-item">
-                <svg
-                  width="20"
-                  height="20"
-                  viewBox="0 0 24 24"
-                  fill="currentColor"
-                >
-                  <path d="M9 16.2L4.8 12l-1.4 1.4L9 19 21 7l-1.4-1.4L9 16.2z" />
-                </svg>
-                <span>Kelola proposal CSR dengan mudah</span>
-              </div>
-              <div className="feature-item">
-                <svg
-                  width="20"
-                  height="20"
-                  viewBox="0 0 24 24"
-                  fill="currentColor"
-                >
-                  <path d="M9 16.2L4.8 12l-1.4 1.4L9 19 21 7l-1.4-1.4L9 16.2z" />
-                </svg>
-                <span>Tracking status real-time</span>
-              </div>
-              <div className="feature-item">
-                <svg
-                  width="20"
-                  height="20"
-                  viewBox="0 0 24 24"
-                  fill="currentColor"
-                >
-                  <path d="M9 16.2L4.8 12l-1.4 1.4L9 19 21 7l-1.4-1.4L9 16.2z" />
-                </svg>
-                <span>Laporan dan analisis komprehensif</span>
-              </div>
-            </div>
           </div>
         </div>
 
@@ -149,33 +92,12 @@ function LoginPage() {
               <p>Masukkan kredensial Anda untuk mengakses dashboard</p>
             </div>
 
-            {error && (
-              <div className="error-alert">
-                <svg
-                  width="20"
-                  height="20"
-                  viewBox="0 0 24 24"
-                  fill="currentColor"
-                >
-                  <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z" />
-                </svg>
-                {error}
-              </div>
-            )}
+            {error && <div className="error-alert">{error}</div>}
 
             <form onSubmit={handleSubmit} className="login-form">
               <div className="form-group">
                 <label htmlFor="username">Username</label>
                 <div className="input-wrapper">
-                  <svg
-                    className="input-icon"
-                    width="20"
-                    height="20"
-                    viewBox="0 0 24 24"
-                    fill="currentColor"
-                  >
-                    <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z" />
-                  </svg>
                   <input
                     type="text"
                     id="username"
@@ -192,15 +114,6 @@ function LoginPage() {
               <div className="form-group">
                 <label htmlFor="password">Password</label>
                 <div className="input-wrapper">
-                  <svg
-                    className="input-icon"
-                    width="20"
-                    height="20"
-                    viewBox="0 0 24 24"
-                    fill="currentColor"
-                  >
-                    <path d="M18 8h-1V6c0-2.76-2.24-5-5-5S7 3.24 7 6v2H6c-1.1 0-2 .9-2 2v10c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V10c0-1.1-.9-2-2-2zm-6 9c-1.1 0-2-.9-2-2s.9-2 2-2 2 .9 2 2-.9 2-2 2zm3.1-9H8.9V6c0-1.71 1.39-3.1 3.1-3.1 1.71 0 3.1 1.39 3.1 3.1v2z" />
-                  </svg>
                   <input
                     type="password"
                     id="password"
@@ -219,14 +132,10 @@ function LoginPage() {
                   <input
                     type="checkbox"
                     name="rememberMe"
-                    checked={formData.rememberMe}
-                    onChange={handleInputChange}
-                    disabled={loading}
+                    // ... (logika rememberMe bisa diimplementasikan nanti)
                   />
-                  <span className="checkmark"></span>
                   <span className="checkbox-label">Ingat saya</span>
                 </label>
-
                 <a href="#" className="forgot-password">
                   Lupa password?
                 </a>
@@ -243,17 +152,7 @@ function LoginPage() {
                     <span>Memproses...</span>
                   </>
                 ) : (
-                  <>
-                    <span>Masuk</span>
-                    <svg
-                      width="20"
-                      height="20"
-                      viewBox="0 0 24 24"
-                      fill="currentColor"
-                    >
-                      <path d="M12 4l-1.41 1.41L16.17 11H4v2h12.17l-5.58 5.59L12 20l8-8z" />
-                    </svg>
-                  </>
+                  <span>Masuk</span>
                 )}
               </button>
             </form>
@@ -262,9 +161,7 @@ function LoginPage() {
             <div className="demo-section">
               <div className="demo-header">
                 <h4>Demo Credentials</h4>
-                <p>Gunakan kredensial berikut untuk testing:</p>
               </div>
-
               <div className="demo-credentials">
                 {demoCredentials.map((cred, index) => (
                   <button
@@ -278,21 +175,9 @@ function LoginPage() {
                       <strong>{cred.username}</strong>
                       <span className="demo-role">{cred.role}</span>
                     </div>
-                    <svg
-                      width="16"
-                      height="16"
-                      viewBox="0 0 24 24"
-                      fill="currentColor"
-                    >
-                      <path d="M12 4l-1.41 1.41L16.17 11H4v2h12.17l-5.58 5.59L12 20l8-8z" />
-                    </svg>
                   </button>
                 ))}
               </div>
-            </div>
-
-            <div className="login-footer">
-              <p>&copy; 2025 CSR Monitoring System. All rights reserved.</p>
             </div>
           </div>
         </div>

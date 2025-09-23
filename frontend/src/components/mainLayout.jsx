@@ -3,15 +3,15 @@ import { Outlet } from "react-router-dom";
 import Sidebar from "./Sidebar"; // Pastikan path ini benar
 
 function MainLayout() {
-  const [sidebarCollapsed] = useState(false);
+  const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
 
   return (
-    <div className="app-layout">
-      {/* Sidebar akan selalu tampil di layout ini */}
-      <Sidebar collapsed={sidebarCollapsed} />
-
-      {/* Konten halaman akan dirender di sini */}
+    <div className="dashboard-layout">
+      {" "}
+      {/* Gunakan class dari CSS Anda */}
+      <Sidebar collapsed={sidebarCollapsed} onToggle={setSidebarCollapsed} />
       <main className={`main-content ${sidebarCollapsed ? "collapsed" : ""}`}>
+        {/* Di sinilah DashboardPage, ProposalsPage, dll, akan dirender */}
         <Outlet />
       </main>
     </div>

@@ -6,6 +6,7 @@ const cors = require("cors"); // <-- 1. IMPORT CORS DI SINI
 const sequelize = require("./src/config/database");
 const picRoutes = require("./src/routes/pic.routes");
 const proposalRoutes = require("./src/routes/proposal.routes");
+const authRoutes = require("./src/routes/auth.routes");
 
 const app = express();
 const port = 5000;
@@ -39,6 +40,7 @@ app.get("/", (req, res) => {
 // ==========================================================
 app.use("/api/pic", picRoutes);
 app.use("/api/proposals", proposalRoutes);
+app.use("/api/auth", authRoutes);
 
 // Menjalankan server
 app.listen(port, () => {

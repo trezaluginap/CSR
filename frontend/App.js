@@ -12,7 +12,7 @@ import DashboardPage from "./pages/DashboardPage";
 import ProtectedRoute from "./components/ProtectedRoute";
 import MainLayout from "./components/MainLayout";
 
-// Import CSS
+// Import CSS (pastikan semua path ini benar)
 import "./styles/DashboardPage.css";
 import "./styles/LoginPage.css";
 import "./App.css";
@@ -26,29 +26,27 @@ const ComingSoonPage = ({ title }) => (
 );
 
 function App() {
-  // FIX: Nilai awal HARUS false. Anggap pengguna belum login sampai terbukti.
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // Cek token di local storage saat aplikasi pertama kali dimuat
     const token = localStorage.getItem("admin_token");
     if (token) {
-      // Jika ada token, anggap pengguna sudah login
       setIsAuthenticated(true);
     }
-    // Selesai memeriksa, matikan status loading
     setLoading(false);
   }, []);
 
   if (loading) {
-    return <div className="loading-fullscreen">Loading...</div>; // Tampilan loading sederhana
+    return <div className="loading-fullscreen">Loading...</div>;
   }
 
   return (
     <Router>
       <Routes>
-        {/* RUTE PUBLIK (Tanpa Sidebar/Layout) */}
+        {/* ========================================================== */}
+        {/* GRUP 1: RUTE PUBLIK (TIDAK PAKAI SIDEBAR) */}
+        {/* ========================================================== */}
         <Route
           path="/login"
           element={
@@ -60,7 +58,9 @@ function App() {
           }
         />
 
-        {/* RUTE YANG DILINDUNGI (Menggunakan MainLayout) */}
+        {/* ========================================================== */}
+        {/* GRUP 2: RUTE TERPROTEKSI (SELALU PAKAI SIDEBAR & HEADER) */}
+        {/* ========================================================== */}
         <Route
           element={
             <ProtectedRoute isAuthenticated={isAuthenticated}>
@@ -68,7 +68,7 @@ function App() {
             </ProtectedRoute>
           }
         >
-          {/* Semua Route di dalam sini akan memiliki Sidebar & Header */}
+          {/* Semua Route di dalam sini akan otomatis memiliki layout Sidebar & Header */}
           <Route path="/dashboard" element={<DashboardPage />} />
           <Route
             path="/proposals"
@@ -89,7 +89,9 @@ function App() {
           />
         </Route>
 
-        {/* Rute Default */}
+        {/* ========================================================== */}
+        {/* RUTE PENGALIHAN DEFAULT */}
+        {/* ========================================================== */}
         <Route
           path="/"
           element={
