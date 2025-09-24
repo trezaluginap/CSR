@@ -1,21 +1,21 @@
-import { useState } from "react";
-import { Outlet } from "react-router-dom";
-import Sidebar from "./Sidebar"; // Pastikan path ini benar
+import React from "react";
+import { Navigate } from "react-router-dom";
+import "../components/Sidebar";
 
-function MainLayout() {
-  const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
+// Komponen ini bertugas melindungi sebuah halaman.
+// Ia menerima dua props:
+// 1. isAuthenticated: boolean yang menandakan status login
+// 2. children: komponen halaman yang ingin dilindungi (misal: <DashboardPage />)
 
-  return (
-    <div className="dashboard-layout">
-      {" "}
-      {/* Gunakan class dari CSS Anda */}
-      <Sidebar collapsed={sidebarCollapsed} onToggle={setSidebarCollapsed} />
-      <main className={`main-content ${sidebarCollapsed ? "collapsed" : ""}`}>
-        {/* Di sinilah DashboardPage, ProposalsPage, dll, akan dirender */}
-        <Outlet />
-      </main>
-    </div>
-  );
+function ProtectedRoute({ isAuthenticated, children }) {
+  // Jika pengguna tidak terotentikasi (belum login)
+  if (!isAuthenticated) {
+    // Arahkan (redirect) mereka ke halaman login
+    return <Navigate to="/login" replace />;
+  }
+
+  // Jika pengguna sudah login, tampilkan halaman yang diminta (children)
+  return children;
 }
 
-export default MainLayout;
+export default ProtectedRoute;

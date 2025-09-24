@@ -1,89 +1,77 @@
-import axios from "axios";
-
-const API_URL = "http://localhost:5000/api/auth/"; // Arahkan ke route otentikasi
-
+// Mock authentication service for CSR Login System
 class AuthService {
+  constructor() {
+    this.isAuthenticated = false
+    this.currentUser = null
+  }
+
+  // Mock login method
   async login(username, password) {
-    try {
-      const response = await axios.post(API_URL + "login", {
-        username,
-        password,
-      });
+    return new Promise((resolve, reject) => {
+      // Simulate API call delay
+      setTimeout(() => {
+        // Mock validation
+        if (username === "admin" && password === "admin123") {
+          this.isAuthenticated = true
+          this.currentUser = {
+            id: 1,
+            username: "admin",
+            role: "Administrator",
+            name: "System Administrator",
+          }
 
-      if (response.data.token) {
-        localStorage.setItem("admin_token", response.data.token);
-        localStorage.setItem("admin_user", JSON.stringify(response.data.user));
-      }
+          // Store in localStorage for persistence
+          localStorage.setItem("auth_token", "mock_token_12345")
+          localStorage.setItem("user_data", JSON.stringify(this.currentUser))
 
-      return response.data;
-    } catch (error) {
-      console.error(
-        "Login service error:",
-        error.response?.data || error.message
-      );
-      if (error.response) {
-        throw new Error(
-          error.response.data.message || "Terjadi kesalahan pada server"
-        );
-      } else if (error.request) {
-        throw new Error(
-          "Tidak dapat terhubung ke server. Periksa koneksi Anda."
-        );
-      } else {
-        throw new Error("Terjadi kesalahan saat melakukan login.");
-      }
-    }
+          resolve({
+            success: true,
+            user: this.currentUser,
+            token: "mock_token_12345",
+          })
+        } else {
+          reject(new Error("Username atau password tidak valid"))
+        }
+      }, 1000)
+    })
   }
 
+  // Mock logout method
   logout() {
-    localStorage.removeItem("admin_token");
-    localStorage.removeItem("admin_user");
+    this.isAuthenticated = false
+    this.currentUser = null
+    localStorage.removeItem("auth_token")
+    localStorage.removeItem("user_data")
   }
 
-  getCurrentUser() {
-    try {
-      const userStr = localStorage.getItem("admin_user");
-      return userStr ? JSON.parse(userStr) : null;
-    } catch (error) {
-      console.error("Error parsing user data:", error);
-      this.logout(); // Hapus data yang rusak
-      return null;
+  // Check if user is authenticated
+  isLoggedIn() {
+    const token = localStorage.getItem("auth_token")
+    const userData = localStorage.getItem("user_data")
+
+    if (token && userData) {
+      this.isAuthenticated = true
+      this.currentUser = JSON.parse(userData)
+      return true
     }
+
+    return false
   }
 
+  // Get current user data
+  getCurrentUser() {
+    if (this.isLoggedIn()) {
+      return this.currentUser
+    }
+    return null
+  }
+
+  // Get auth token
   getToken() {
-    return localStorage.getItem("admin_token");
-  }
-
-  // Fungsi canggih untuk setup interceptor
-  setupAxiosInterceptors() {
-    // 1. Interceptor untuk Request (Mengirim token)
-    axios.interceptors.request.use(
-      (config) => {
-        const token = this.getToken();
-        if (token) {
-          config.headers.Authorization = `Bearer ${token}`;
-        }
-        return config;
-      },
-      (error) => {
-        return Promise.reject(error);
-      }
-    );
-
-    // 2. Interceptor untuk Response (Menangani error 401 Unauthorized)
-    axios.interceptors.response.use(
-      (response) => response,
-      (error) => {
-        if (error.response?.status === 401) {
-          // Jika token tidak valid/expired, otomatis logout
-          this.logout();
-          window.location.href = "/login";
-        }
-        return Promise.reject(error);
-      }
-    );
+    return localStorage.getItem("auth_token")
   }
 }
 
-export default new AuthService();
+// Create and export a single instance
+const authService = new AuthService()
+export default authService

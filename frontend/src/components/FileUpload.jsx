@@ -1,126 +1,116 @@
-// src/components/FileUpload.jsx
-import { useState, useRef } from "react";
+"use client"
 
-function FileUpload({
-  onFileSelect,
-  accept = ".pdf,.doc,.docx,.jpg,.jpeg,.png",
-  maxSize = 5 * 1024 * 1024,
-}) {
-  const [dragOver, setDragOver] = useState(false);
-  const [uploadProgress, setUploadProgress] = useState(0);
-  const [selectedFile, setSelectedFile] = useState(null);
-  const [error, setError] = useState("");
-  const fileInputRef = useRef(null);
+// src/components/FileUpload.jsx
+import { useState, useRef } from "react"
+
+function FileUpload({ onFileSelect, accept = ".pdf,.doc,.docx,.jpg,.jpeg,.png", maxSize = 5 * 1024 * 1024 }) {
+  const [dragOver, setDragOver] = useState(false)
+  const [uploadProgress, setUploadProgress] = useState(0)
+  const [selectedFile, setSelectedFile] = useState(null)
+  const [error, setError] = useState("")
+  const fileInputRef = useRef(null)
 
   const validateFile = (file) => {
     // Check file size
     if (file.size > maxSize) {
-      return `File terlalu besar. Maksimal ${maxSize / 1024 / 1024}MB`;
+      return `File terlalu besar. Maksimal ${maxSize / 1024 / 1024}MB`
     }
 
     // Check file type
-    const allowedTypes = accept.split(",").map((type) => type.trim());
-    const fileExtension = "." + file.name.split(".").pop().toLowerCase();
-    const mimeType = file.type;
+    const allowedTypes = accept.split(",").map((type) => type.trim())
+    const fileExtension = "." + file.name.split(".").pop().toLowerCase()
+    const mimeType = file.type
 
     const isValidExtension = allowedTypes.some(
-      (type) =>
-        type === fileExtension ||
-        (type.startsWith(".") && fileExtension === type)
-    );
+      (type) => type === fileExtension || (type.startsWith(".") && fileExtension === type),
+    )
 
     const isValidMimeType = allowedTypes.some((type) => {
-      if (type === ".pdf") return mimeType === "application/pdf";
-      if (type === ".doc") return mimeType === "application/msword";
+      if (type === ".pdf") return mimeType === "application/pdf"
+      if (type === ".doc") return mimeType === "application/msword"
       if (type === ".docx")
-        return (
-          mimeType ===
-          "application/vnd.openxmlformats-officedocument.wordprocessingml.document"
-        );
-      if (type === ".jpg" || type === ".jpeg")
-        return mimeType.startsWith("image/jpeg");
-      if (type === ".png") return mimeType === "image/png";
-      return false;
-    });
+        return mimeType === "application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+      if (type === ".jpg" || type === ".jpeg") return mimeType.startsWith("image/jpeg")
+      if (type === ".png") return mimeType === "image/png"
+      return false
+    })
 
     if (!isValidExtension && !isValidMimeType) {
-      return `Tipe file tidak didukung. Yang diizinkan: ${allowedTypes.join(
-        ", "
-      )}`;
+      return `Tipe file tidak didukung. Yang diizinkan: ${allowedTypes.join(", ")}`
     }
 
-    return null;
-  };
+    return null
+  }
 
   const handleFileSelect = (file) => {
-    setError("");
+    setError("")
 
-    const validationError = validateFile(file);
+    const validationError = validateFile(file)
     if (validationError) {
-      setError(validationError);
-      return;
+      setError(validationError)
+      return
     }
 
-    setSelectedFile(file);
-    onFileSelect(file);
+    setSelectedFile(file)
+    onFileSelect(file)
 
     // Simulate upload progress
-    setUploadProgress(0);
+    setUploadProgress(0)
     const interval = setInterval(() => {
       setUploadProgress((prev) => {
         if (prev >= 100) {
-          clearInterval(interval);
-          return 100;
+          clearInterval(interval)
+          return 100
         }
-        return prev + 10;
-      });
-    }, 200);
-  };
+        return prev + 10
+      })
+    }, 200)
+  }
 
   const handleFileInputChange = (e) => {
-    const file = e.target.files[0];
+    const file = e.target.files[0]
     if (file) {
-      handleFileSelect(file);
+      handleFileSelect(file)
     }
-  };
+  }
 
   const handleDragOver = (e) => {
-    e.preventDefault();
-    setDragOver(true);
-  };
+    e.preventDefault()
+    setDragOver(true)
+  }
 
   const handleDragLeave = (e) => {
-    e.preventDefault();
-    setDragOver(false);
-  };
+    e.preventDefault()
+    setDragOver(false)
+  }
 
   const handleDrop = (e) => {
-    e.preventDefault();
-    setDragOver(false);
+    e.preventDefault()
+    setDragOver(false)
 
-    const files = e.dataTransfer.files;
+    const files = e.dataTransfer.files
     if (files.length > 0) {
-      handleFileSelect(files[0]);
+      handleFileSelect(files[0])
     }
-  };
+  }
 
   const handleRemoveFile = () => {
-    setSelectedFile(null);
-    setUploadProgress(0);
-    setError("");
-    onFileSelect(null);
+    setSelectedFile(null)
+    setUploadProgress(0)
+    setError("")
+    onFileSelect(null)
     if (fileInputRef.current) {
-      fileInputRef.current.value = "";
+      fileInputRef.current.value = ""
     }
-  };
+  }
 
   const formatFileSize = (bytes) => {
-    if (bytes === 0) return "0 Bytes";
-    const k = 1024;
-    const sizes = ["Bytes", "KB", "MB", "GB"];
-    const i = Math.floor(Math.log(bytes) / Math.log(k));
-    return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + " " + sizes[i];
-  };
+    if (bytes === 0) return "0 Bytes"
+    const k = 1024
+    const sizes = ["Bytes", "KB", "MB", "GB"]
+    const i = Math.floor(Math.log(bytes) / Math.log(k))
+    return Number.parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + " " + sizes[i]
+  }
 
   return (
     <div className="file-upload-wrapper">
@@ -147,9 +137,15 @@ function FileUpload({
                 width="48"
                 height="48"
                 viewBox="0 0 24 24"
-                fill="currentColor"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
               >
-                <path d="M14,2H6A2,2 0 0,0 4,4V20A2,2 0 0,0 6,22H18A2,2 0 0,0 20,20V8L14,2M18,20H6V4H13V9H18V20Z" />
+                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+                <polyline points="17,8 12,3 7,8" />
+                <line x1="12" y1="3" x2="12" y2="15" />
               </svg>
             </div>
             <h4>Upload File Pendukung</h4>
@@ -167,29 +163,36 @@ function FileUpload({
                 width="24"
                 height="24"
                 viewBox="0 0 24 24"
-                fill="currentColor"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
               >
-                <path d="M14,2H6A2,2 0 0,0 4,4V20A2,2 0 0,0 6,22H18A2,2 0 0,0 20,20V8L14,2M18,20H6V4H13V9H18V20Z" />
+                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
+                <polyline points="14,2 14,8 20,8" />
+                <line x1="16" y1="13" x2="8" y2="13" />
+                <line x1="16" y1="17" x2="8" y2="17" />
+                <polyline points="10,9 9,9 8,9" />
               </svg>
             </div>
             <div className="file-details">
               <span className="file-name">{selectedFile.name}</span>
-              <span className="file-size">
-                {formatFileSize(selectedFile.size)}
-              </span>
+              <span className="file-size">{formatFileSize(selectedFile.size)}</span>
             </div>
-            <button
-              type="button"
-              className="remove-file-btn"
-              onClick={handleRemoveFile}
-            >
+            <button type="button" className="remove-file-btn" onClick={handleRemoveFile} aria-label="Hapus file">
               <svg
                 width="16"
                 height="16"
                 viewBox="0 0 24 24"
-                fill="currentColor"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
               >
-                <path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z" />
+                <line x1="18" y1="6" x2="6" y2="18" />
+                <line x1="6" y1="6" x2="18" y2="18" />
               </svg>
             </button>
           </div>
@@ -197,10 +200,7 @@ function FileUpload({
           {uploadProgress < 100 && (
             <div className="upload-progress">
               <div className="progress-bar">
-                <div
-                  className="progress-fill"
-                  style={{ width: `${uploadProgress}%` }}
-                ></div>
+                <div className="progress-fill" style={{ width: `${uploadProgress}%` }}></div>
               </div>
               <span className="progress-text">{uploadProgress}%</span>
             </div>
@@ -212,9 +212,13 @@ function FileUpload({
                 width="16"
                 height="16"
                 viewBox="0 0 24 24"
-                fill="currentColor"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
               >
-                <path d="M9 16.2L4.8 12l-1.4 1.4L9 19 21 7l-1.4-1.4L9 16.2z" />
+                <polyline points="20,6 9,17 4,12" />
               </svg>
               <span>File berhasil dipilih</span>
             </div>
@@ -224,14 +228,25 @@ function FileUpload({
 
       {error && (
         <div className="file-upload-error">
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
-            <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z" />
+          <svg
+            width="16"
+            height="16"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          >
+            <circle cx="12" cy="12" r="10" />
+            <line x1="15" y1="9" x2="9" y2="15" />
+            <line x1="9" y1="9" x2="15" y2="15" />
           </svg>
           {error}
         </div>
       )}
     </div>
-  );
+  )
 }
 
-export default FileUpload;
+export default FileUpload
